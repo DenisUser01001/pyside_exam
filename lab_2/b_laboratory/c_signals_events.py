@@ -120,7 +120,7 @@ class Window(QtWidgets.QWidget):
 
 
     def resizeEvent(self, event):
-        print(f'{time.ctime()}: Текущий размер окна приложения: {event.size().width(),event.size().height()} ')
+        print(f'{time.ctime()}: Текущий размер окна приложения: {event.size().width(), event.size().height()} ')
 
 
 if __name__ == "__main__":
