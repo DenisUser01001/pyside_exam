@@ -55,7 +55,7 @@ class WeatherHandler(QtCore.QThread):
         :return: None
         """
         if delay:
-            self.__delay = delay
+            self.__delay = int(delay)
         else:
             self.__delay = 10
 

@@ -65,7 +65,7 @@ class Window(QtWidgets.QWidget):
             self.delayTimeLineEdit.setEnabled(True)
         else:
             self.thread.setStatus(True)
-            self.thread.setDelay(int(self.delayTimeLineEdit.text()))
+            self.thread.setDelay(self.delayTimeLineEdit.text())
             self.thread.setCoordinates(int(self.latLineEdit.text()), int(self.lonLineEdit.text()))
             self.thread.start()
             self.latLineEdit.setEnabled(False)
