@@ -43,8 +43,12 @@ class WeatherHandler(QtCore.QThread):
     def setCoordinates(self, lat, lon):
         if -180 <= lat <= 180:
             self.lat = lat
+        else:
+            self.lat = 60
         if -180 <= lon <= 180:
             self.lon = lon
+        else:
+            self.lon = 30
         self.__api_url = f"https://api.open-meteo.com/v1/forecast?latitude={self.lat}&longitude={self.lon}&current_weather=true"
 
     def setDelay(self, delay) -> None:
