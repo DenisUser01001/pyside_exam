@@ -20,12 +20,12 @@ from lab_3.b_laboratory.a_threads import SystemInfo
 class Window(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.__initThread()
+        self.__initThreads()
         self.__initUi()
         self.__initSignals()
         self.thread.start()
 
-    def __initThread(self):
+    def __initThreads(self):
         self.thread = SystemInfo()
 
     def __initUi(self):
