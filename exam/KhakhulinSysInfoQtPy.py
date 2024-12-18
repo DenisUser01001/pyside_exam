@@ -99,9 +99,11 @@ class SystemInfo(QtCore.QThread):
             disc_counter = len(psutil.disk_partitions(all=False))
             hdd_info = []
             for hdd in psutil.disk_partitions(all=False):
-                usage = psutil.disk_usage(hdd.mountpoint)
-                hdd_info.append(("Диск:", hdd.device, "Объём диска:", bytes2human(usage.total), "Занято на диске:", bytes2human(usage.used)))
-
+                try:
+                    usage = psutil.disk_usage(hdd.mountpoint)
+                    hdd_info.append(("Диск:", hdd.device, "Объём диска:", bytes2human(usage.total), "Занято на диске:", bytes2human(usage.used)))
+                except PermissionError:
+                    continue
             self.systemInfoReceived.emit([cpu_name, cpu_cores, cpu_load, ram_total, ram_load, disc_counter, hdd_info])
             time.sleep(self.delay)
 
