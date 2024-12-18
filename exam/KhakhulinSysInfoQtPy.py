@@ -50,7 +50,9 @@ class SysInfoWindow(QtWidgets.QWidget):
         self.ui.TotalRamLabel.setText(str(f"Объём памяти: {bytes2human(params[3])}"))
         self.ui.RamUsageLabel.setText(str(f"Загрузка виртуальной памяти: {params[4]}%"))
         self.ui.HddInfoBoxplainTextEdit.setPlainText(f"Количество дисков: {params[5]} \n")
-        self.ui.HddInfoBoxplainTextEdit.appendPlainText(f"Информация о дисках: \n {params[6]}")
+        self.ui.HddInfoBoxplainTextEdit.appendPlainText(f"Информация о дисках: \n")
+        for x in params[6]:
+            self.ui.HddInfoBoxplainTextEdit.appendPlainText(str(x))
 
     def onWinProcessesReceived(self, params):
         # self.ui.WinProcessesPlainTextEdit.setPlainText(str(params))
