@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="gif">
+    <file>gif/load_1.gif</file>
+    <file>gif/load_2.gif</file>
+  </qresource>
+  <qresource prefix="ico">
+    <file>ico/icons8-джейк-16.png</file>
+    <file>ico/icons8-джейк-32.png</file>
+    <file>ico/icons8-джейк-64.png</file>
+  </qresource>
+  <qresource prefix="images">
+    <file>images/airplane.gif</file>
+    <file>images/python.png</file>
+    <file>images/splash.jpg</file>
+  </qresource>
+</RCC>
