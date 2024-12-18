@@ -44,14 +44,17 @@ class SysInfoWindow(QtWidgets.QWidget):
         self.ui.CpuUsageLabel.setText(str(f"Загрузка процессора: {params[2]}%"))
         self.ui.TotalRamLabel.setText(str(f"Объём памяти: {bytes2human(params[3])}"))
         self.ui.RamUsageLabel.setText(str(f"Загрузка виртуальной памяти: {params[4]}%"))
-        self.ui.HddInfoBoxplainTextEdit.setPlainText(f"Количество дисков:{params[5]} \n")
+        self.ui.HddInfoBoxplainTextEdit.setPlainText(f"Количество дисков: {params[5]} \n")
         self.ui.HddInfoBoxplainTextEdit.appendPlainText(f"Информация о дисках: \n {params[6]}")
 
     def onWinProcessesReceived(self, params):
-        self.ui.WinProcessesPlainTextEdit.setPlainText(str("params"))
+        self.ui.WinProcessesPlainTextEdit.setPlainText(str(params))
 
     def onWinServicesReceived(self, params):
-        self.ui.WinServicesPlainTextEdit.setPlainText(str("params"))
+        self.ui.WinServicesPlainTextEdit.setPlainText(str(params))
+
+    def closeEvent(self, event):
+        ...
 
 
 class SystemInfo(QtCore.QThread):
@@ -96,9 +99,27 @@ class WinProcesses(QtCore.QThread):
 
     def run(self) -> None:
         while True:
-            win_processes = list(psutil.process_iter())
+            win_processes = []
+            for proc in psutil.process_iter():
+                # proc_info = dict()
+                with proc.oneshot():
+                    # proc_info["pid"] = proc.pid
+                    # proc_info["ppid"] = proc.ppid()
+                    # proc_info["name"] = proc.name()
+                    # proc_info["exe"] = proc.exe()  # Requires root access for '/proc/#/exe'
+                    # proc_info["cpu_percent"] = proc.cpu_percent()
+                    # mem_info = proc.memory_info()
+                    # proc_info["mem_rss"] = mem_info.rss
+                    # proc_info["num_threads"] = proc.num_threads()
+                    # proc_info["nice_priority"] = proc.nice()
+                    # win_processes.append([proc.pid, proc.name()])
+                    win_processes.append(proc.name())
             self.WinProcessesReceived.emit(win_processes)
             time.sleep(self.delay)
+        # while True:
+            # win_processes = list(psutil.process_iter())
+            # self.WinProcessesReceived.emit(win_processes)
+            # time.sleep(self.delay)
 
 
 class WinServices(QtCore.QThread):
@@ -110,9 +131,16 @@ class WinServices(QtCore.QThread):
 
     def run(self) -> None:
         while True:
-            win_services = list(psutil.win_service_iter())
+            win_services = []
+            for serv in psutil.win_service_iter():
+                win_services.append(serv.name())
             self.WinServicesReceived.emit(win_services)
             time.sleep(self.delay)
+
+        # while True:
+        #     win_services = list(psutil.win_service_iter())
+        #     self.WinServicesReceived.emit(win_services)
+        #     time.sleep(self.delay)
 
 
 if __name__ == "__main__":
