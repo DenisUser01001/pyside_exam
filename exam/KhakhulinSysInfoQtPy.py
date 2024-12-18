@@ -53,13 +53,19 @@ class SysInfoWindow(QtWidgets.QWidget):
         self.ui.HddInfoBoxplainTextEdit.appendPlainText(f"Информация о дисках: \n {params[6]}")
 
     def onWinProcessesReceived(self, params):
-        self.ui.WinProcessesPlainTextEdit.setPlainText(str(params))
+        # self.ui.WinProcessesPlainTextEdit.setPlainText(str(params))
+        for x in params:
+            self.ui.WinProcessesPlainTextEdit.appendPlainText(str(x))
 
     def onWinServicesReceived(self, params):
-        self.ui.WinServicesPlainTextEdit.setPlainText(str(params))
+        # self.ui.WinServicesPlainTextEdit.setPlainText(str(params))
+        for x in params:
+            self.ui.WinServicesPlainTextEdit.appendPlainText(str(x))
 
     def onWinSchedulerReceived(self, params):
-        self.ui.WinShedulePlainTextEdit.setPlainText(str(params))
+        # self.ui.WinShedulePlainTextEdit.setPlainText(str(params))
+        for x in params:
+            self.ui.WinShedulePlainTextEdit.appendPlainText(str(x))
 
     def closeEvent(self, event):
         ...
