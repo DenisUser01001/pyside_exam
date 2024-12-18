@@ -1,6 +1,8 @@
 import platform
 import time
 import psutil
+#  pip install pywin32
+import win32com.client
 from PySide6 import QtWidgets, QtCore
 from psutil._common import bytes2human
 
@@ -13,6 +15,7 @@ class SysInfoWindow(QtWidgets.QWidget):
         self.SystemInfo = SystemInfo()
         self.WinProcesses = WinProcesses()
         self.WinServices = WinServices()
+        self.WinScheduler = WinScheduler()
         self.__initThreads()
         self.__initUi()
         self.__initSignals()
@@ -21,6 +24,7 @@ class SysInfoWindow(QtWidgets.QWidget):
         self.SystemInfo.start()
         self.WinProcesses.start()
         self.WinServices.start()
+        self.WinScheduler.start()
 
     def __initUi(self):
         self.ui = Ui_Form()
@@ -31,6 +35,7 @@ class SysInfoWindow(QtWidgets.QWidget):
         self.SystemInfo.systemInfoReceived.connect(self.onSystemInfoReceived)
         self.WinProcesses.WinProcessesReceived.connect(self.onWinProcessesReceived)
         self.WinServices.WinServicesReceived.connect(self.onWinServicesReceived)
+        self.WinScheduler.WinSchedulerReceived.connect(self.onWinSchedulerReceived)
 
     def delayTimeLineEditTextChanged(self, text):
         if text:
@@ -52,6 +57,9 @@ class SysInfoWindow(QtWidgets.QWidget):
 
     def onWinServicesReceived(self, params):
         self.ui.WinServicesPlainTextEdit.setPlainText(str(params))
+
+    def onWinSchedulerReceived(self, params):
+        self.ui.WinShedulePlainTextEdit.setPlainText(str(params))
 
     def closeEvent(self, event):
         ...
@@ -141,6 +149,33 @@ class WinServices(QtCore.QThread):
         #     win_services = list(psutil.win_service_iter())
         #     self.WinServicesReceived.emit(win_services)
         #     time.sleep(self.delay)
+
+
+class WinScheduler(QtCore.QThread):
+    WinSchedulerReceived = QtCore.Signal(list)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.delay = 20
+
+    def run(self) -> None:
+        TASK_STATE = {0: 'Unknown',
+                      1: 'Disabled',
+                      2: 'Queued',
+                      3: 'Ready',
+                      4: 'Running'}
+        while True:
+            win_scheduler = []
+            scheduler = win32com.client.Dispatch('Schedule.Service')
+            scheduler.Connect()
+            folders = [scheduler.GetFolder('\\')]
+            while folders:
+                folder = folders.pop(0)
+                folders += list(folder.GetFolders(0))
+                for task in folder.GetTasks(0):
+                    win_scheduler.append(["Название: ", task.name, "Путь: ", task.path, "Состояние: ", TASK_STATE[task.state]])
+            self.WinSchedulerReceived.emit(win_scheduler)
+            time.sleep(self.delay)
 
 
 if __name__ == "__main__":
