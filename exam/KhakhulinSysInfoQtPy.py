@@ -44,7 +44,8 @@ class SysInfoWindow(QtWidgets.QWidget):
         self.ui.CpuUsageLabel.setText(str(f"Загрузка процессора: {params[2]}%"))
         self.ui.TotalRamLabel.setText(str(f"Объём памяти: {bytes2human(params[3])}"))
         self.ui.RamUsageLabel.setText(str(f"Загрузка виртуальной памяти: {params[4]}%"))
-        self.ui.HddInfoBoxplainTextEdit.setPlainText(f"Количество дисков:{params[5]}")
+        self.ui.HddInfoBoxplainTextEdit.setPlainText(f"Количество дисков:{params[5]} \n")
+        self.ui.HddInfoBoxplainTextEdit.appendPlainText(f"Информация о дисках: \n {params[6]}")
 
     def onWinProcessesReceived(self, params):
         self.ui.WinProcessesPlainTextEdit.setPlainText(str("params"))
@@ -58,15 +59,18 @@ class SystemInfo(QtCore.QThread):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.__delay = None
+        self.delay = None
 
     def setDelay(self, delay) -> None:
         if delay:
-            self.__delay = int(delay)
+            self.delay = int(delay)
         else:
-            self.__delay = 5
+            self.delay = 5
 
     def run(self):
+        if self.delay is None:
+            self.delay = 5
+
         while True:
             cpu_name = platform.processor()  # модель процессора
             cpu_cores = psutil.cpu_count()  # количество логических и физических процессоров(ядер)
@@ -74,16 +78,13 @@ class SystemInfo(QtCore.QThread):
             ram_total = psutil.virtual_memory().total
             ram_load = psutil.virtual_memory().percent  # загрузка RAM
             disc_counter = len(psutil.disk_partitions(all=False))
-            # for hdd in psutil.disk_partitions(all=False):
-            #     usage = psutil.disk_usage(hdd.mountpoint)
-            #     hdd_info = {disc_counter: {"Диск: ": hdd.device,
-            #                            "Объём диска: ": bytes2human(usage.total),
-            #                            "Занято на диске: ": bytes2human(usage.used),
-            #                            "Файловая система: ": hdd.fstype}}
-            #     print(hdd_info)
+            hdd_info = []
+            for hdd in psutil.disk_partitions(all=False):
+                usage = psutil.disk_usage(hdd.mountpoint)
+                hdd_info.append(("Диск:", hdd.device, "Объём диска:", bytes2human(usage.total), "Занято на диске:", bytes2human(usage.used)))
 
-            self.systemInfoReceived.emit([cpu_name, cpu_cores, cpu_load, ram_total, ram_load, disc_counter])
-            time.sleep(self.__delay)
+            self.systemInfoReceived.emit([cpu_name, cpu_cores, cpu_load, ram_total, ram_load, disc_counter, hdd_info])
+            time.sleep(self.delay)
 
 
 class WinProcesses(QtCore.QThread):
@@ -91,13 +92,13 @@ class WinProcesses(QtCore.QThread):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.__delay = 20
+        self.delay = 20
 
     def run(self) -> None:
         while True:
             win_processes = list(psutil.process_iter())
             self.WinProcessesReceived.emit(win_processes)
-            time.sleep(self.__delay)
+            time.sleep(self.delay)
 
 
 class WinServices(QtCore.QThread):
@@ -105,13 +106,13 @@ class WinServices(QtCore.QThread):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.__delay = 20
+        self.delay = 20
 
     def run(self) -> None:
         while True:
             win_services = list(psutil.win_service_iter())
             self.WinServicesReceived.emit(win_services)
-            time.sleep(self.__delay)
+            time.sleep(self.delay)
 
 
 if __name__ == "__main__":
